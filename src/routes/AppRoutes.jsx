@@ -2,16 +2,16 @@ import { Routes, Route } from 'react-router-dom';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PublicRoute } from './PublicRoute';
 
-import Home from '../pages/Home';
-import Explore from '../pages/Explore';
-import Detail from '../pages/Detail';
-import Library from '../pages/Library';
-import Playlists from '../pages/Playlists';
-import Profile from '../pages/Profile';
-import WrappedStats from '../pages/WrappedStats';
-import Login from '../pages/Login';
-import Register from '../pages/Register';
-import NotFound from '../pages/NotFound';
+import Home from '../screen/Home';
+import Explore from '../screen/Explore';
+import Detail from '../screen/Detail';
+import Library from '../screen/Library';
+import Playlists from '../screen/Playlists';
+import Profile from '../screen/Profile';
+import WrappedStats from '../screen/WrappedStats';
+import Login from '../screen/Login';
+import Register from '../screen/Register';
+import NotFound from '../screen/NotFound';
 import MainLayout from '../layout/MainLayout';
 
 export const AppRoutes = () => {

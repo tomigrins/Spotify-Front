@@ -1,23 +1,18 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import Portada from './Portada';
 
-const MusicCard = ({ item }) => {
-  const navigate = useNavigate();
+const ETIQUETAS = { cancion: 'Canción', album: 'Álbum', artista: 'Artista' };
 
-  // Adaptamos las propiedades de Spotify según si es canción, álbum o artista
-  const id = item.id;
-  const title = item.name;
-  const image = item.images?.[0]?.url || item.album?.images?.[0]?.url || '/assets/logo.svg';
-  const subtitle = item.artists?.map((a) => a.name).join(', ') || item.type;
-
-  return (
-    <div className="music-card" onClick={() => navigate(`/detail/${id}`)}>
-      <img src={image} alt={title} className="music-card-img" />
-      <div className="music-card-info">
-        <h3>{title}</h3>
-        <p>{subtitle}</p>
-      </div>
+// item: resultado normalizado de musicApi (canción, álbum o artista)
+const MusicCard = ({ item }) => (
+  <Link to={`/detail/${item.id}`} className="music-card">
+    <Portada src={item.imagen} className="music-card-img" />
+    <div className="music-card-info">
+      <h3>{item.titulo}</h3>
+      <p>{item.subtitulo}</p>
+      <p className="music-card-tipo">{ETIQUETAS[item.tipo]}</p>
     </div>
-  );
-};
+  </Link>
+);
 
 export default MusicCard;
