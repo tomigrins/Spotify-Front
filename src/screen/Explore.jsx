@@ -23,7 +23,13 @@ const Explore = () => {
 
   return (
     <div className="explore-page">
-      <h1>Explorar música</h1>
+      <header className="page-header">
+        <div>
+          <h1>Encontrá tu próxima obsesión</h1>
+          <p className="page-subtitulo">Álbumes, artistas y canciones que todavía no sabés que te gustan.</p>
+        </div>
+      </header>
+
       <SearchBar key={q} valorInicial={q} onSearch={(nueva) => setParams({ q: nueva, tipo })} />
       <FilterPanel activeType={tipo} onSelectType={(nuevo) => setParams(q ? { q, tipo: nuevo } : { tipo: nuevo })} />
 
@@ -35,7 +41,19 @@ const Explore = () => {
           Probá con otras palabras o cambiá el filtro.
         </EmptyState>
       )}
-      {resultados?.length > 0 && <MusicGrid items={resultados} />}
+      {resultados?.length > 0 && (
+        <section>
+          <div className="section-header">
+            <h2>
+              Resultados para «{q}»{' '}
+              <span className="texto-secundario section-contador">
+                {resultados.length} {resultados.length === 1 ? 'resultado' : 'resultados'}
+              </span>
+            </h2>
+          </div>
+          <MusicGrid items={resultados} />
+        </section>
+      )}
     </div>
   );
 };

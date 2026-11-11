@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import EmptyState from '../components/common/EmptyState';
 import ErrorMessage from '../components/common/ErrorMessage';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import Icon from '../components/common/Icon';
 import CancionFila from '../components/music/CancionFila';
 import { useFetch } from '../hooks/useFetch';
+import { fondoDeColeccion } from '../utils/presentacion';
 import {
   borrarPlaylist,
   crearPlaylist,
@@ -32,7 +34,7 @@ const PlaylistDetalle = ({ id, onCambio }) => {
   if (error) return <ErrorMessage error={error} onRetry={recargar} />;
 
   return (
-    <section className="playlist-detalle">
+    <section className="playlist-detalle card">
       <h2>{playlist.nombre}</h2>
       <ErrorMessage error={errorAccion} />
       {playlist.canciones.length === 0 ? (
@@ -93,19 +95,25 @@ const Playlists = () => {
 
   return (
     <div className="playlists-page">
-      <h1>Tus playlists</h1>
-
-      <form className="inline-form" onSubmit={crear}>
-        <input
-          aria-label="Nombre de la playlist"
-          placeholder="Nombre de la playlist"
-          maxLength={200}
-          required
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-        />
-        <button type="submit" disabled={enviando}>{enviando ? 'Creando...' : 'Crear'}</button>
-      </form>
+      <header className="page-header">
+        <div>
+          <h1>Tus colecciones</h1>
+          <p className="page-subtitulo">Tu música, en tu manera. Armá playlists para cada momento.</p>
+        </div>
+        <form className="inline-form crear-coleccion" onSubmit={crear}>
+          <input
+            aria-label="Nombre de la playlist"
+            placeholder="Nombre de la playlist"
+            maxLength={200}
+            required
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+          />
+          <button type="submit" disabled={enviando}>
+            <Icon nombre="mas" size={14} /> {enviando ? 'Creando...' : 'Crear playlist'}
+          </button>
+        </form>
+      </header>
 
       <ErrorMessage error={errorAccion} />
       {loading && <LoadingSpinner />}
@@ -115,17 +123,38 @@ const Playlists = () => {
       )}
 
       {playlists?.length > 0 && (
-        <ul className="playlist-lista">
-          {playlists.map((p) => (
-            <li key={p.id} className={elegida === p.id ? 'active' : ''}>
-              <button type="button" className="playlist-nombre" onClick={() => setElegida(p.id)}>
-                {p.nombre}
-                <span className="texto-secundario"> · {p.canciones} {p.canciones === 1 ? 'canción' : 'canciones'}</span>
-              </button>
-              <button type="button" className="btn-secondary" onClick={() => borrar(p)}>Borrar</button>
-            </li>
-          ))}
-        </ul>
+        <section>
+          <div className="section-header">
+            <h2>Hechas por vos</h2>
+            <span className="texto-secundario section-contador">
+              {playlists.length} {playlists.length === 1 ? 'colección' : 'colecciones'}
+            </span>
+          </div>
+          <ul className="playlist-lista">
+            {playlists.map((p) => (
+              <li key={p.id} className={elegida === p.id ? 'playlist-card active' : 'playlist-card'}>
+                <div className="playlist-portada" style={fondoDeColeccion(p.id)} aria-hidden="true">
+                  <span className="playlist-chip">♪ Playlist</span>
+                </div>
+                <button
+                  type="button"
+                  className="playlist-nombre"
+                  aria-pressed={elegida === p.id}
+                  onClick={() => setElegida(p.id)}
+                >
+                  {p.nombre}
+                  <span className="texto-secundario">
+                    <span className="separador"> · </span>
+                    {p.canciones} {p.canciones === 1 ? 'canción' : 'canciones'}
+                  </span>
+                </button>
+                <div className="playlist-acciones">
+                  <button type="button" className="btn-texto btn-texto-peligro" onClick={() => borrar(p)}>Borrar</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {elegida && <PlaylistDetalle key={elegida} id={elegida} onCambio={recargar} />}

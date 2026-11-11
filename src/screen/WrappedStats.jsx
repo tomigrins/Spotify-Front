@@ -99,7 +99,12 @@ const WrappedStats = () => {
 
   return (
     <div className="wrapped-page">
-      <h1>Tu Wrapped</h1>
+      <header className="page-header">
+        <div>
+          <h1>Tu Wrapped</h1>
+          <p className="page-subtitulo">Tus artistas, canciones y géneros del año, a partir de tu historial.</p>
+        </div>
+      </header>
 
       {loading && <LoadingSpinner />}
       <ErrorMessage error={error} onRetry={recargar} />

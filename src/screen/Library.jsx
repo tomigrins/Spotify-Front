@@ -62,7 +62,12 @@ const Library = () => {
 
   return (
     <div className="library-page">
-      <h1>Tu biblioteca</h1>
+      <header className="page-header">
+        <div>
+          <h1>Tu biblioteca</h1>
+          <p className="page-subtitulo">Lo que querés escuchar, lo que estás escuchando y lo que ya escuchaste.</p>
+        </div>
+      </header>
 
       <div className="filter-panel">
         {PESTANAS.map((p) => (
@@ -90,7 +95,7 @@ const Library = () => {
 
       {data?.data.length > 0 && (
         <>
-          <ul className="cancion-lista">
+          <ul className="cancion-lista card">
             {data.data.map((cancion) => (
               <CancionFila key={cancion.id} cancion={cancion}>
                 <StatusBadge estado={cancion.estado} />

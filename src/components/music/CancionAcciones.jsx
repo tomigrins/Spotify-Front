@@ -88,68 +88,73 @@ const PanelCancion = ({ cancion, relacion, playlists }) => {
 
   return (
     <div className="cancion-acciones">
-      <section>
-        <h3>Tu biblioteca</h3>
-        <div className="status-buttons">
-          {ESTADOS.map((e) => (
+      <div className="card experiencia-card">
+        <h2 className="card-titulo">Tu experiencia</h2>
+        <section>
+          <h3>Tu biblioteca</h3>
+          <div className="status-buttons">
+            {ESTADOS.map((e) => (
+              <button
+                key={e.id}
+                type="button"
+                className={estado === e.id ? 'active' : ''}
+                aria-pressed={estado === e.id}
+                disabled={guardando}
+                onClick={() => cambiarEstado(e.id)}
+              >
+                {e.label}
+              </button>
+            ))}
             <button
-              key={e.id}
               type="button"
-              className={estado === e.id ? 'active' : ''}
-              aria-pressed={estado === e.id}
+              className={favorito ? 'active' : ''}
+              aria-pressed={favorito}
               disabled={guardando}
-              onClick={() => cambiarEstado(e.id)}
+              onClick={cambiarFavorito}
             >
-              {e.label}
+              {favorito ? '♥ Favorito' : '♡ Favorito'}
             </button>
-          ))}
-          <button
-            type="button"
-            className={favorito ? 'active' : ''}
-            aria-pressed={favorito}
-            disabled={guardando}
-            onClick={cambiarFavorito}
-          >
-            {favorito ? '♥ Favorito' : '♡ Favorito'}
-          </button>
-        </div>
-      </section>
+          </div>
+        </section>
 
-      <section>
-        <h3>Tu puntuación</h3>
-        <RatingStars rating={puntuacion} onRate={puntuar} disabled={guardando} />
-      </section>
+        <section>
+          <h3>Tu puntuación</h3>
+          <RatingStars rating={puntuacion} onRate={puntuar} disabled={guardando} />
+        </section>
 
-      <section>
-        <h3>Agregar a una playlist</h3>
-        {playlists.length === 0 ? (
-          <p>
-            Todavía no tenés playlists. <Link to="/playlists">Creá la primera</Link>.
-          </p>
-        ) : (
-          <form className="inline-form" onSubmit={agregarAPlaylist}>
-            <select
-              aria-label="Elegí una playlist"
-              required
-              value={playlistElegida}
-              onChange={(e) => setPlaylistElegida(e.target.value)}
-            >
-              <option value="">Elegí una playlist</option>
-              {playlists.map((p) => (
-                <option key={p.id} value={p.id}>{p.nombre}</option>
-              ))}
-            </select>
-            <button type="submit" disabled={guardando}>Agregar</button>
-          </form>
-        )}
-        {nombresEnPlaylists.length > 0 && (
-          <p className="texto-secundario">Está en: {nombresEnPlaylists.join(', ')}</p>
-        )}
-      </section>
+        <section>
+          <h3>Agregar a una playlist</h3>
+          {playlists.length === 0 ? (
+            <p>
+              Todavía no tenés playlists. <Link to="/playlists">Creá la primera</Link>.
+            </p>
+          ) : (
+            <form className="inline-form" onSubmit={agregarAPlaylist}>
+              <select
+                aria-label="Elegí una playlist"
+                required
+                value={playlistElegida}
+                onChange={(e) => setPlaylistElegida(e.target.value)}
+              >
+                <option value="">Elegí una playlist</option>
+                {playlists.map((p) => (
+                  <option key={p.id} value={p.id}>{p.nombre}</option>
+                ))}
+              </select>
+              <button type="submit" disabled={guardando}>Agregar</button>
+            </form>
+          )}
+          {nombresEnPlaylists.length > 0 && (
+            <p className="texto-secundario">Está en: {nombresEnPlaylists.join(', ')}</p>
+          )}
+        </section>
 
-      <ErrorMessage error={error} />
+        <ErrorMessage error={error} />
+      </div>
 
-      <ReviewForm comentarioInicial={relacion.resena?.comentario ?? ''} onGuardar={guardarComentario} />
+      <div className="card">
+        <ReviewForm comentarioInicial={relacion.resena?.comentario ?? ''} onGuardar={guardarComentario} />
+      </div>
     </div>
   );
 };

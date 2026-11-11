@@ -31,10 +31,14 @@ const Profile = () => {
 
   return (
     <div className="profile-page">
-      <h1>Tu perfil</h1>
-      <p className="texto-secundario">{user.email}</p>
+      <header className="page-header">
+        <div>
+          <h1>Tu perfil</h1>
+          <p className="page-subtitulo">{user.email}</p>
+        </div>
+      </header>
 
-      <form className="form" onSubmit={handleSubmit}>
+      <form className="form card" onSubmit={handleSubmit}>
         <label>
           Nombre
           <input required maxLength={100} value={nombre} onChange={(e) => setNombre(e.target.value)} />
