@@ -1,88 +1,65 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { getTrackDetail } from '../services/spotifyApi';
-import api from '../services/api';
-import RatingStars from '../components/common/RatingStars';
-import ReviewForm from '../components/forms/ReviewForm';
+import { Link, useParams } from 'react-router-dom';
+import EmptyState from '../components/common/EmptyState';
+import ErrorMessage from '../components/common/ErrorMessage';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import CancionAcciones from '../components/music/CancionAcciones';
+import MusicGrid from '../components/music/MusicGrid';
+import Portada from '../components/music/Portada';
+import { useFetch } from '../hooks/useFetch';
+import { obtenerDetalle } from '../services/musicApi';
+import { formatearDuracion } from '../utils/formato';
+
+const ETIQUETAS = { cancion: 'Canción', album: 'Álbum', artista: 'Artista' };
+const TITULOS_CONTENIDO = { album: 'Canciones', artista: 'Álbumes' };
 
 const Detail = () => {
   const { id } = useParams();
-  const [item, setItem] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState('Quiero escuchar');
-  const [rating, setRating] = useState(0);
-
-  useEffect(() => {
-    const fetchDetail = async () => {
-      try {
-        const data = await getTrackDetail(id);
-        setItem(data);
-      } catch (err) {
-        console.error('Error al obtener detalle de Spotify', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDetail();
-  }, [id]);
-
-  // Guardar en la biblioteca (Backend Propio)
-  const handleSaveToLibrary = async (newStatus) => {
-    setStatus(newStatus);
-    await api.post('/library', {
-      spotifyId: item.id,
-      title: item.name,
-      artistName: item.artists.map((a) => a.name).join(', '),
-      coverImageUrl: item.album.images[0]?.url,
-      status: newStatus,
-    });
-  };
-
-  // Guardar Puntuación (Backend Propio)
-  const handleRate = async (newRating) => {
-    setRating(newRating);
-    await api.post('/ratings', {
-      spotifyId: item.id,
-      rating: newRating,
-    });
-  };
+  const { data: item, loading, error, recargar } = useFetch(() => obtenerDetalle(id), [id]);
 
   if (loading) return <LoadingSpinner />;
-  if (!item) return <p>No se encontró el contenido.</p>;
+  if (error) return <ErrorMessage error={error} onRetry={recargar} />;
+  if (!item) {
+    return (
+      <EmptyState titulo="No encontramos este contenido">
+        <Link to="/explore">Volver a Explorar</Link>
+      </EmptyState>
+    );
+  }
+
+  const datos = [item.genero, item.anio, formatearDuracion(item.duracionSegundos)].filter(Boolean);
 
   return (
     <div className="detail-page">
       <div className="detail-header">
-        <img src={item.album.images[0]?.url} alt={item.name} />
+        <Portada src={item.imagen} className="detail-img" />
         <div>
-          <h1>{item.name}</h1>
-          <h2>{item.artists.map((a) => a.name).join(', ')}</h2>
-          <p>Álbum: {item.album.name}</p>
-
-          {/* Estados obligatorios */}
-          <div className="status-buttons">
-            {['Quiero escuchar', 'Escuchando', 'Escuchado', 'Favorito'].map((s) => (
-              <button
-                key={s}
-                className={status === s ? 'active' : ''}
-                onClick={() => handleSaveToLibrary(s)}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-
-          {/* Puntuación */}
-          <div className="rating-container">
-            <p>Tu puntuación:</p>
-            <RatingStars rating={rating} onRate={handleRate} />
-          </div>
+          <p className="detail-tipo">{ETIQUETAS[item.tipo]}</p>
+          <h1>{item.titulo}</h1>
+          {item.artista && <h2>{item.artista}</h2>}
+          {item.album && (
+            <p>
+              Álbum: {item.albumId ? <Link to={`/detail/${item.albumId}`}>{item.album}</Link> : item.album}
+            </p>
+          )}
+          {datos.length > 0 && <p className="texto-secundario">{datos.join(' · ')}</p>}
+          {item.previewUrl && (
+            <audio controls preload="none" src={item.previewUrl} aria-label={`Fragmento de ${item.titulo}`} />
+          )}
         </div>
       </div>
 
-      {/* Formulario de Reseña */}
-      <ReviewForm spotifyId={item.id} />
+      {item.tipo === 'cancion' ? (
+        <CancionAcciones key={item.id} cancion={item} />
+      ) : (
+        <section>
+          <h2>{TITULOS_CONTENIDO[item.tipo]}</h2>
+          {item.contenido.length > 0 ? (
+            <MusicGrid items={item.contenido} />
+          ) : (
+            <EmptyState titulo="El catálogo no trae más información" />
+          )}
+        </section>
+      )}
     </div>
   );
 };

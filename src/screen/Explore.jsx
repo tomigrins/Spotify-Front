@@ -1,54 +1,41 @@
-import { useState } from 'react';
-import SearchBar from '../components/music/SearchBar';
+import { useSearchParams } from 'react-router-dom';
+import EmptyState from '../components/common/EmptyState';
+import ErrorMessage from '../components/common/ErrorMessage';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 import FilterPanel from '../components/music/FilterPanel';
 import MusicGrid from '../components/music/MusicGrid';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import ErrorMessage from '../components/common/ErrorMessage';
-import { searchCatalog } from '../services/spotifyApi';
+import SearchBar from '../components/music/SearchBar';
+import { useFetch } from '../hooks/useFetch';
+import { buscarCatalogo } from '../services/musicApi';
 
+const TODOS = 'track,album,artist';
+
+// La búsqueda vive en la URL: se puede volver atrás y llegar con un link desde la biblioteca.
 const Explore = () => {
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState('track,album,artist');
+  const [params, setParams] = useSearchParams();
+  const q = params.get('q') ?? '';
+  const tipo = params.get('tipo') ?? TODOS;
 
-  const handleSearch = async (query, type = filterType) => {
-    setLoading(true);
-    setError(null);
-    setSearchQuery(query);
-
-    try {
-      const data = await searchCatalog(query, type);
-      // Normalizamos la respuesta de Spotify (tracks, albums, artists)
-      const tracks = data.tracks?.items || [];
-      const albums = data.albums?.items || [];
-      const artists = data.artists?.items || [];
-
-      setResults([...tracks, ...albums, ...artists]);
-    } catch (err) {
-      setError('Ocurrió un error al realizar la búsqueda en Spotify.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFilterChange = (newType) => {
-    setFilterType(newType);
-    if (searchQuery) {
-      handleSearch(searchQuery, newType);
-    }
-  };
+  const { data: resultados, loading, error, recargar } = useFetch(
+    () => (q ? buscarCatalogo(q, tipo) : Promise.resolve(null)),
+    [q, tipo],
+  );
 
   return (
     <div className="explore-page">
-      <h1>Explorar Música</h1>
-      <SearchBar onSearch={(q) => handleSearch(q, filterType)} />
-      <FilterPanel activeType={filterType} onSelectType={handleFilterChange} />
+      <h1>Explorar música</h1>
+      <SearchBar key={q} valorInicial={q} onSearch={(nueva) => setParams({ q: nueva, tipo })} />
+      <FilterPanel activeType={tipo} onSelectType={(nuevo) => setParams(q ? { q, tipo: nuevo } : { tipo: nuevo })} />
 
-      {loading && <LoadingSpinner />}
-      {error && <ErrorMessage message={error} />}
-      {!loading && !error && <MusicGrid items={results} />}
+      {!q && <EmptyState titulo="¿Qué querés escuchar?">Buscá una canción, un álbum o un artista.</EmptyState>}
+      {q && loading && <LoadingSpinner mensaje="Buscando..." />}
+      <ErrorMessage error={error} onRetry={recargar} />
+      {resultados?.length === 0 && (
+        <EmptyState titulo={`No encontramos resultados para "${q}"`}>
+          Probá con otras palabras o cambiá el filtro.
+        </EmptyState>
+      )}
+      {resultados?.length > 0 && <MusicGrid items={resultados} />}
     </div>
   );
 };
