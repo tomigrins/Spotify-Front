@@ -66,6 +66,8 @@ export const obtenerPlaylist = (id) => api.get(`/me/playlists/${id}`).then(datos
 
 export const crearPlaylist = (nombre) => api.post('/me/playlists', { nombre }).then(datos);
 
+export const renombrarPlaylist = (id, nombre) => api.patch(`/me/playlists/${id}`, { nombre }).then(datos);
+
 export const borrarPlaylist = (id) => api.delete(`/me/playlists/${id}`);
 
 export const agregarCancionAPlaylist = (playlistId, cancionId) => (

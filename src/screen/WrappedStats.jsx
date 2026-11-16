@@ -2,12 +2,14 @@ import { useState } from 'react';
 import EmptyState from '../components/common/EmptyState';
 import ErrorMessage from '../components/common/ErrorMessage';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import BibliotecaStats from '../components/stats/BibliotecaStats';
 import ImportPanel from '../components/stats/ImportPanel';
 import TopArtistsCard from '../components/stats/TopArtistsCard';
 import TopGenresChart from '../components/stats/TopGenresChart';
 import WrappedSummaryCard from '../components/stats/WrappedSummaryCard';
 import { useAuth } from '../hooks/useAuth';
 import { useFetch } from '../hooks/useFetch';
+import { obtenerEstadisticas } from '../services/actividadService';
 import { listarAniosWrapped, obtenerWrapped, sincronizarGeneros } from '../services/wrappedService';
 import { formatearStreams } from '../utils/formato';
 
@@ -90,6 +92,22 @@ const ResumenAnual = ({ anio }) => {
   );
 };
 
+// Se recalcula en cada visita: refleja lo último que guardaste, puntuaste o cambiaste.
+const EstadisticasBiblioteca = () => {
+  const { data, loading, error, recargar } = useFetch(obtenerEstadisticas);
+
+  return (
+    <section className="stats-seccion" aria-labelledby="titulo-biblioteca">
+      <div className="section-header">
+        <h2 id="titulo-biblioteca">Tu biblioteca</h2>
+      </div>
+      {loading && <LoadingSpinner />}
+      <ErrorMessage error={error} onRetry={recargar} />
+      {data && <BibliotecaStats e={data} />}
+    </section>
+  );
+};
+
 const WrappedStats = () => {
   const { user } = useAuth();
   const { data: anios, loading, error, recargar } = useFetch(listarAniosWrapped);
@@ -101,10 +119,17 @@ const WrappedStats = () => {
     <div className="wrapped-page">
       <header className="page-header">
         <div>
-          <h1>Tu Wrapped</h1>
-          <p className="page-subtitulo">Tus artistas, canciones y géneros del año, a partir de tu historial.</p>
+          <h1>Tus estadísticas</h1>
+          <p className="page-subtitulo">Tu biblioteca en números y tu resumen del año, con tus datos reales.</p>
         </div>
       </header>
+
+      <EstadisticasBiblioteca />
+
+      <div className="section-header">
+        <h2>Tu Wrapped</h2>
+        <span className="texto-secundario section-contador">Artistas, canciones y géneros del año, a partir de tu historial</span>
+      </div>
 
       {loading && <LoadingSpinner />}
       <ErrorMessage error={error} onRetry={recargar} />

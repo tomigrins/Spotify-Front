@@ -1,9 +1,9 @@
 import { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import Avatar from '../components/common/Avatar';
 import Icon from '../components/common/Icon';
 import { ThemeContext } from '../context/contexts';
 import { useAuth } from '../hooks/useAuth';
-import { iniciales } from '../utils/presentacion';
 
 // Nombre de la sección para la miga de pan, según la ruta actual.
 const SECCIONES = [
@@ -52,8 +52,8 @@ const Topbar = ({ publico = false }) => {
           <Icon nombre={theme === 'dark' ? 'sol' : 'luna'} size={16} />
         </button>
         {!publico && user && (
-          <Link to="/profile" className="avatar avatar-chico" aria-label="Tu perfil">
-            {iniciales(user)}
+          <Link to="/profile" className="topbar-avatar" aria-label="Tu perfil">
+            <Avatar user={user} className="avatar avatar-chico" />
           </Link>
         )}
       </div>

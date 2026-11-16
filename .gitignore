@@ -46,3 +46,6 @@ temp/
 
 # Local config
 *.local
+
+# Expo (no se usa en este proyecto)
+.expo/

@@ -1,46 +1,125 @@
 # Spotify Wrapped — Front
 
-SPA en React + Vite. Consume el backend propio (`TPFinalDai`) y la iTunes Search API para explorar música.
+SPA en React + Vite para llevar tu propia biblioteca musical y ver tu "Wrapped" con datos reales.
+Consume el backend propio ([TPFinalDai](#backend)) y la [iTunes Search API](https://performance-partners.apple.com/search-api)
+para explorar el catálogo.
+
+## Qué se puede hacer
+
+- **Explorar** canciones, álbumes y artistas del catálogo de iTunes, y ver el detalle de cada uno.
+- **Biblioteca**: marcar cada canción como *Quiero escuchar*, *Escuchando* o *Escuchado*.
+- **Favoritos y reseñas**: puntuar canciones (estrellas) y dejar un comentario.
+- **Playlists**: crear, renombrar, borrar y agregar o quitar canciones.
+- **Estadísticas / Wrapped**: importar el historial de escucha (export de Spotify en `.json` o usuario de Last.fm),
+  ver el resumen de cada año, los artistas y géneros más escuchados y los números de la biblioteca.
+- **Actividad**: historial de lo que fuiste haciendo (agregados, reseñas, playlists, importaciones).
+- **Perfil** editable (avatar, bio, géneros y artistas preferidos, usuario de Last.fm) y tema claro/oscuro.
+
+## Requisitos
+
+- Node.js 20.19+ o 22.12+ (lo pide Vite 8).
+- El backend corriendo y accesible.
 
 ## Arranque
 
 1. Levantar el backend (ver su README). Tiene que permitir este origen en `CORS_ORIGIN`.
-2. `npm install`
-3. `cp .env.example .env` (opcional: por defecto usa `http://localhost:3000/api`)
-4. `npm run dev` y abrir **http://localhost:5173**. Con `127.0.0.1` no funciona: es otro origen y otro sitio para la cookie.
+2. Instalar dependencias:
+   ```bash
+   npm install
+   ```
+3. Crear el `.env` (opcional: si no está, usa `http://localhost:3000/api`):
+   ```bash
+   cp .env.example .env
+   ```
+4. Levantar el servidor de desarrollo:
+   ```bash
+   npm run dev
+   ```
+   y abrir **http://localhost:5173**. Con `127.0.0.1` no funciona: es otro origen y otro sitio para la cookie.
 
 Para probar el vencimiento de la sesión, levantar el backend con `JWT_ACCESS_TTL=1m`.
 
+### Variables de entorno
+
+| Variable           | Descripción                                   | Por defecto                 |
+| ------------------ | --------------------------------------------- | --------------------------- |
+| `VITE_BACKEND_URL` | URL del backend, **con** el prefijo `/api`.   | `http://localhost:3000/api` |
+
+Vite incrusta las variables `VITE_*` en el bundle al compilar: después de cambiarla hay que reiniciar `npm run dev`
+o volver a hacer el build. No pongas secretos ahí, porque terminan en el navegador.
+
+## Scripts
+
+| Comando           | Qué hace                                         |
+| ----------------- | ------------------------------------------------ |
+| `npm run dev`     | Servidor de desarrollo con recarga en caliente.  |
+| `npm run build`   | Build de producción en `dist/`.                  |
+| `npm run preview` | Sirve el build de `dist/` para probarlo local.   |
+| `npm run lint`    | Corre ESLint sobre todo el proyecto.             |
+
+## Deploy (Vercel)
+
+El proyecto está listo para Vercel:
+
+- `vercel.json` redirige todas las rutas a `index.html`, así recargar en `/library` o `/detail/123` no da 404.
+- Configurar `VITE_BACKEND_URL` en las variables de entorno del proyecto en Vercel, apuntando al backend publicado.
+- El backend tiene que incluir el dominio de Vercel en `CORS_ORIGIN`. Como front y backend quedan en dominios
+  distintos, la cookie de sesión tiene que estar configurada para mandarse entre sitios (ver README del backend).
+
+## Rutas
+
+| Ruta           | Pantalla            | Acceso                   |
+| -------------- | ------------------- | ------------------------ |
+| `/login`       | Iniciar sesión      | Solo sin sesión          |
+| `/register`    | Registrarse         | Solo sin sesión          |
+| `/`            | Inicio              | Con sesión               |
+| `/explore`     | Buscar en el catálogo | Con sesión             |
+| `/detail/:id`  | Canción, álbum o artista (id de iTunes) | Con sesión |
+| `/library`     | Biblioteca          | Con sesión               |
+| `/playlists`   | Playlists           | Con sesión               |
+| `/profile`     | Perfil y actividad  | Con sesión               |
+| `/stats`       | Estadísticas y Wrapped | Con sesión            |
+| `*`            | 404                 | Pública                  |
+
+`ProtectedRoute` manda al login si no hay sesión; `PublicRoute` manda al inicio si ya la hay.
+
 ## Cómo está armado
 
-- **`src/services/`**: todas las llamadas HTTP, separadas de la interfaz. `api.js` configura Axios para el
-  backend; `authService`, `bibliotecaService` y `wrappedService` lo usan; `musicApi` consume iTunes y normaliza
-  sus respuestas; `errores.js` convierte cualquier falla en un `ApiError` con un `tipo` y un mensaje para mostrar.
+```
+src/
+├── components/   # Piezas de interfaz: common, forms, music, stats, activity
+├── context/      # AuthContext (sesión) y ThemeContext (tema)
+├── hooks/        # useAuth, useFetch
+├── layout/       # Estructura de la app: AppShell, Navbar, Topbar, Footer
+├── routes/       # AppRoutes y las rutas protegidas / públicas
+├── screen/       # Una pantalla por ruta
+├── services/     # Todas las llamadas HTTP
+└── utils/        # Formato, estados de la biblioteca, textos de actividad
+```
+
+- **`src/services/`**: todas las llamadas HTTP, separadas de la interfaz.
+  - `api.js` configura Axios para el backend (con `withCredentials` para mandar la cookie).
+  - `authService`, `bibliotecaService`, `wrappedService` y `actividadService` lo usan.
+  - `musicApi` consume iTunes y normaliza sus respuestas, así la interfaz no depende de su formato.
+  - `errores.js` convierte cualquier falla en un `ApiError` con un `tipo`
+    (`conexion`, `sesion`, `limite`, `servidor`, `solicitud`) y un mensaje para mostrar.
 - **Sesión**: el JWT está en una cookie `HttpOnly` que pone el backend. El front no lo ve ni lo guarda. Al abrir la
   app pregunta a `GET /api/me` si la sesión sigue valiendo: la expiración la valida siempre el servidor.
   Si un `401` trae un código de sesión (`TOKEN_*`), `AuthContext` cierra la sesión y el login avisa que venció.
+  Los demás `401` (por ejemplo, una contraseña incorrecta) no cierran la sesión.
 - **Contextos**: `AuthContext` (usuario activo y sesión) y `ThemeContext` (tema). Biblioteca, favoritos, reseñas y
   playlists viven solo en la base de datos.
 - **`localStorage`**: guarda únicamente la preferencia de tema.
-- **Estados de pantalla**: `useFetch` expone carga, error y datos; `LoadingSpinner`, `ErrorMessage` (con reintento)
-  y `EmptyState` los muestran.
+- **Estados de pantalla**: `useFetch` expone carga, error y datos, y descarta respuestas viejas si cambian las
+  dependencias. `LoadingSpinner`, `ErrorMessage` (con reintento) y `EmptyState` los muestran.
+- **Catálogo**: las canciones vienen de iTunes. Antes de guardar una en la biblioteca, el front le pide al backend
+  que la resuelva (`POST /canciones/resolver`) para obtener su id en el catálogo propio.
 
----
+## Backend
 
-# React + Vite
+Este front necesita el backend del TP (`TPFinalDai`), que expone la API bajo `/api`: autenticación, biblioteca,
+favoritos, reseñas, playlists, actividad, estadísticas, Wrapped e importación de historial (Spotify y Last.fm).
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Stack
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-"# Spotify-Front" 
+React 19 · React Router 7 · Axios · Vite 8 · ESLint · fuente Lexend (`@fontsource-variable/lexend`).

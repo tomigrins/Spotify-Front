@@ -5,10 +5,13 @@ import Icon from '../components/common/Icon';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import MusicGrid from '../components/music/MusicGrid';
 import Portada from '../components/music/Portada';
+import ActividadLista from '../components/activity/ActividadLista';
+import ProgresoBiblioteca from '../components/stats/ProgresoBiblioteca';
 import StatCard from '../components/stats/StatCard';
 import { useAuth } from '../hooks/useAuth';
 import { useFetch } from '../hooks/useFetch';
-import { listarBiblioteca, listarFavoritos, listarPlaylists } from '../services/bibliotecaService';
+import { listarActividad, obtenerEstadisticas } from '../services/actividadService';
+import { listarPlaylists } from '../services/bibliotecaService';
 import { buscarCatalogo } from '../services/musicApi';
 import { listarAniosWrapped } from '../services/wrappedService';
 import { fechaLarga, fondoDeColeccion, saludo } from '../utils/presentacion';
@@ -16,19 +19,21 @@ import { fechaLarga, fondoDeColeccion, saludo } from '../utils/presentacion';
 const numero = new Intl.NumberFormat('es-AR');
 
 const cargarResumen = async () => {
-  const [biblioteca, favoritos, playlists, wrapped] = await Promise.all([
-    listarBiblioteca({ limit: 1 }),
-    listarFavoritos({ limit: 1 }),
+  const [estadisticas, playlists, wrapped, actividad] = await Promise.all([
+    obtenerEstadisticas(),
     listarPlaylists(),
     listarAniosWrapped(),
+    listarActividad({ limit: 5 }),
   ]);
   return {
-    biblioteca: biblioteca.total,
-    favoritos: favoritos.total,
+    biblioteca: estadisticas.biblioteca.total,
+    favoritos: estadisticas.favoritos,
     playlists: playlists.length,
+    progreso: estadisticas.biblioteca,
     // La misma respuesta de arriba: se muestran las primeras en "Hechas por vos"
     listaPlaylists: playlists,
     ultimoWrapped: wrapped[0] ?? null,
+    actividad: actividad.data,
   };
 };
 
@@ -106,6 +111,39 @@ const Home = () => {
           )}
         </section>
       </div>
+
+      {resumen.data && (
+        <div className="dos-columnas">
+          <section className="card" aria-labelledby="titulo-progreso">
+            <div className="card-header">
+              <h2 id="titulo-progreso">Tu progreso</h2>
+              <Link to="/library" className="link-acento">
+                Ir a tu biblioteca <Icon nombre="flecha" size={12} />
+              </Link>
+            </div>
+            {resumen.data.biblioteca > 0 ? (
+              <ProgresoBiblioteca
+                porEstado={resumen.data.progreso.porEstado}
+                porcentajeEscuchado={resumen.data.progreso.porcentajeEscuchado}
+              />
+            ) : (
+              <EmptyState titulo="Tu biblioteca está vacía">
+                <Link to="/explore">Buscá música</Link> y guardala para seguir tu avance.
+              </EmptyState>
+            )}
+          </section>
+
+          <section className="card" aria-labelledby="titulo-actividad">
+            <div className="card-header">
+              <h2 id="titulo-actividad">Actividad reciente</h2>
+              <Link to="/profile" className="link-acento">
+                Ver más <Icon nombre="flecha" size={12} />
+              </Link>
+            </div>
+            <ActividadLista items={resumen.data.actividad} />
+          </section>
+        </div>
+      )}
 
       {resumen.data?.listaPlaylists.length > 0 && (
         <section>
