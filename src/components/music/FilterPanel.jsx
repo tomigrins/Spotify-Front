@@ -11,7 +11,9 @@ const FilterPanel = ({ activeType, onSelectType }) => {
       {types.map((type) => (
         <button
           key={type.id}
+          type="button"
           className={activeType === type.id ? 'active' : ''}
+          aria-pressed={activeType === type.id}
           onClick={() => onSelectType(type.id)}
         >
           {type.label}

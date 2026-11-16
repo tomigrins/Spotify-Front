@@ -25,33 +25,36 @@ const RegisterForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="form">
+    <form onSubmit={handleSubmit} className="form form-auth">
       <label>
         Nombre
-        <input name="nombre" autoComplete="given-name" required maxLength={100} value={datos.nombre} onChange={cambiar} />
+        <input name="nombre" autoComplete="given-name" placeholder="¿Cómo te llamás?" required maxLength={100} value={datos.nombre} onChange={cambiar} />
       </label>
       <label>
         Apellido
-        <input name="apellido" autoComplete="family-name" required maxLength={100} value={datos.apellido} onChange={cambiar} />
+        <input name="apellido" autoComplete="family-name" placeholder="Tu apellido" required maxLength={100} value={datos.apellido} onChange={cambiar} />
       </label>
       <label>
         Email
-        <input name="email" type="email" autoComplete="email" required value={datos.email} onChange={cambiar} />
+        <input name="email" type="email" autoComplete="email" placeholder="tu@email.com" required value={datos.email} onChange={cambiar} />
       </label>
       <label>
-        Contraseña (mínimo 8 caracteres)
+        Contraseña
         <input
           name="password"
           type="password"
           autoComplete="new-password"
+          placeholder="Creá una contraseña"
+          aria-describedby="password-ayuda"
           required
           minLength={8}
           value={datos.password}
           onChange={cambiar}
         />
+        <span id="password-ayuda" className="campo-ayuda">Usá al menos 8 caracteres.</span>
       </label>
       <ErrorMessage error={error} />
-      <button type="submit" disabled={enviando}>
+      <button type="submit" className="btn-bloque" disabled={enviando}>
         {enviando ? 'Creando cuenta...' : 'Crear cuenta'}
       </button>
     </form>

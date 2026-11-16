@@ -10,7 +10,7 @@ const MusicCard = ({ item }) => (
     <div className="music-card-info">
       <h3>{item.titulo}</h3>
       <p>{item.subtitulo}</p>
-      <p className="music-card-tipo">{ETIQUETAS[item.tipo]}</p>
+      <p className="music-card-tipo">{[ETIQUETAS[item.tipo], item.anio].filter(Boolean).join(' · ')}</p>
     </div>
   </Link>
 );

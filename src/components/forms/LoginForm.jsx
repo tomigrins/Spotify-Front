@@ -24,12 +24,13 @@ const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="form">
+    <form onSubmit={handleSubmit} className="form form-auth">
       <label>
         Email
         <input
           type="email"
           autoComplete="email"
+          placeholder="tu@email.com"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -40,14 +41,15 @@ const LoginForm = () => {
         <input
           type="password"
           autoComplete="current-password"
+          placeholder="••••••••"
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
       </label>
       <ErrorMessage error={error} />
-      <button type="submit" disabled={enviando}>
-        {enviando ? 'Ingresando...' : 'Ingresar'}
+      <button type="submit" className="btn-bloque" disabled={enviando}>
+        {enviando ? 'Ingresando...' : 'Iniciar sesión'}
       </button>
     </form>
   );

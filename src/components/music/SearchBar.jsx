@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Icon from '../common/Icon';
 
 const SearchBar = ({ valorInicial = '', onSearch }) => {
   const [query, setQuery] = useState(valorInicial);
@@ -11,7 +12,8 @@ const SearchBar = ({ valorInicial = '', onSearch }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="search-bar">
+    <form onSubmit={handleSubmit} className="search-bar" role="search">
+      <Icon nombre="buscar" size={18} className="search-bar-icono" />
       <input
         type="search"
         aria-label="Buscar música"

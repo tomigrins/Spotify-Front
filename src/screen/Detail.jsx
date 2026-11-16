@@ -5,6 +5,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import CancionAcciones from '../components/music/CancionAcciones';
 import MusicGrid from '../components/music/MusicGrid';
 import Portada from '../components/music/Portada';
+import TrackList from '../components/music/TrackList';
 import { useFetch } from '../hooks/useFetch';
 import { obtenerDetalle } from '../services/musicApi';
 import { formatearDuracion } from '../utils/formato';
@@ -27,21 +28,26 @@ const Detail = () => {
   }
 
   const datos = [item.genero, item.anio, formatearDuracion(item.duracionSegundos)].filter(Boolean);
+  if (item.cantidadCanciones) datos.push(`${item.cantidadCanciones} canciones`);
 
   return (
     <div className="detail-page">
       <div className="detail-header">
         <Portada src={item.imagen} className="detail-img" />
-        <div>
+        <div className="detail-info">
           <p className="detail-tipo">{ETIQUETAS[item.tipo]}</p>
           <h1>{item.titulo}</h1>
           {item.artista && <h2>{item.artista}</h2>}
           {item.album && (
-            <p>
+            <p className="detail-album">
               Álbum: {item.albumId ? <Link to={`/detail/${item.albumId}`}>{item.album}</Link> : item.album}
             </p>
           )}
-          {datos.length > 0 && <p className="texto-secundario">{datos.join(' · ')}</p>}
+          {datos.length > 0 && (
+            <ul className="detail-chips" aria-label="Datos">
+              {datos.map((d) => <li key={d}>{d}</li>)}
+            </ul>
+          )}
           {item.previewUrl && (
             <audio controls preload="none" src={item.previewUrl} aria-label={`Fragmento de ${item.titulo}`} />
           )}
@@ -52,12 +58,12 @@ const Detail = () => {
         <CancionAcciones key={item.id} cancion={item} />
       ) : (
         <section>
-          <h2>{TITULOS_CONTENIDO[item.tipo]}</h2>
-          {item.contenido.length > 0 ? (
-            <MusicGrid items={item.contenido} />
-          ) : (
-            <EmptyState titulo="El catálogo no trae más información" />
-          )}
+          <div className="section-header">
+            <h2>{TITULOS_CONTENIDO[item.tipo]}</h2>
+          </div>
+          {item.contenido.length === 0 && <EmptyState titulo="El catálogo no trae más información" />}
+          {item.contenido.length > 0 && item.tipo === 'album' && <TrackList items={item.contenido} />}
+          {item.contenido.length > 0 && item.tipo === 'artista' && <MusicGrid items={item.contenido} />}
         </section>
       )}
     </div>
