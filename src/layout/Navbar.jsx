@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import Avatar from '../components/common/Avatar';
 import ErrorMessage from '../components/common/ErrorMessage';
 import Icon from '../components/common/Icon';
 import { useAuth } from '../hooks/useAuth';
-import { iniciales } from '../utils/presentacion';
 import Logo from './Logo';
 
 // Mismas rutas que antes; cambian solo los textos y la ubicación (menú lateral del diseño).
@@ -69,10 +69,10 @@ const Navbar = ({ publico = false }) => {
         {!publico && user && (
           <div className="sidebar-usuario">
             <NavLink to="/profile" className="sidebar-perfil" aria-label={`Perfil de ${user.nombre}`}>
-              <span className="avatar" aria-hidden="true">{iniciales(user)}</span>
+              <Avatar user={user} />
               <span className="sidebar-perfil-texto">
                 <span className="sidebar-perfil-nombre">{user.nombre} {user.apellido}</span>
-                <span className="sidebar-perfil-detalle">Perfil personal</span>
+                <span className="sidebar-perfil-detalle">@{user.nombre_usuario}</span>
               </span>
             </NavLink>
             <button

@@ -13,7 +13,50 @@ import {
   listarPlaylists,
   obtenerPlaylist,
   quitarCancionDePlaylist,
+  renombrarPlaylist,
 } from '../services/bibliotecaService';
+
+// Formulario en línea para cambiarle el nombre a una playlist.
+const RenombrarForm = ({ playlist, onListo, onCancelar }) => {
+  const [nombre, setNombre] = useState(playlist.nombre);
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState(null);
+
+  const guardar = async (e) => {
+    e.preventDefault();
+    if (!nombre.trim()) return;
+    if (nombre.trim() === playlist.nombre) {
+      onCancelar();
+      return;
+    }
+    setEnviando(true);
+    setError(null);
+    try {
+      await renombrarPlaylist(playlist.id, nombre.trim());
+      onListo();
+    } catch (err) {
+      setError(err);
+      setEnviando(false);
+    }
+  };
+
+  return (
+    <form className="inline-form renombrar-form" onSubmit={guardar}>
+      <input
+        aria-label={`Nuevo nombre para ${playlist.nombre}`}
+        maxLength={200}
+        required
+        autoFocus
+        value={nombre}
+        onChange={(e) => setNombre(e.target.value)}
+        onKeyDown={(e) => e.key === 'Escape' && onCancelar()}
+      />
+      <button type="submit" disabled={enviando}>{enviando ? 'Guardando...' : 'Guardar'}</button>
+      <button type="button" className="btn-secondary" onClick={onCancelar}>Cancelar</button>
+      <ErrorMessage error={error} />
+    </form>
+  );
+};
 
 const PlaylistDetalle = ({ id, onCambio }) => {
   const { data: playlist, loading, error, recargar } = useFetch(() => obtenerPlaylist(id), [id]);
@@ -59,6 +102,8 @@ const PlaylistDetalle = ({ id, onCambio }) => {
 const Playlists = () => {
   const { data: playlists, loading, error, recargar } = useFetch(listarPlaylists);
   const [elegida, setElegida] = useState(null);
+  const [renombrando, setRenombrando] = useState(null);
+  const [renombres, setRenombres] = useState(0);
   const [nombre, setNombre] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [errorAccion, setErrorAccion] = useState(null);
@@ -136,28 +181,44 @@ const Playlists = () => {
                 <div className="playlist-portada" style={fondoDeColeccion(p.id)} aria-hidden="true">
                   <span className="playlist-chip">♪ Playlist</span>
                 </div>
-                <button
-                  type="button"
-                  className="playlist-nombre"
-                  aria-pressed={elegida === p.id}
-                  onClick={() => setElegida(p.id)}
-                >
-                  {p.nombre}
-                  <span className="texto-secundario">
-                    <span className="separador"> · </span>
-                    {p.canciones} {p.canciones === 1 ? 'canción' : 'canciones'}
-                  </span>
-                </button>
-                <div className="playlist-acciones">
-                  <button type="button" className="btn-texto btn-texto-peligro" onClick={() => borrar(p)}>Borrar</button>
-                </div>
+                {renombrando === p.id ? (
+                  <RenombrarForm
+                    playlist={p}
+                    onCancelar={() => setRenombrando(null)}
+                    onListo={() => {
+                      setRenombrando(null);
+                      setRenombres((n) => n + 1);
+                      recargar();
+                    }}
+                  />
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="playlist-nombre"
+                      aria-pressed={elegida === p.id}
+                      onClick={() => setElegida(p.id)}
+                    >
+                      {p.nombre}
+                      <span className="texto-secundario">
+                        <span className="separador"> · </span>
+                        {p.canciones} {p.canciones === 1 ? 'canción' : 'canciones'}
+                      </span>
+                    </button>
+                    <div className="playlist-acciones">
+                      <button type="button" className="btn-texto" onClick={() => setRenombrando(p.id)}>Renombrar</button>
+                      <button type="button" className="btn-texto btn-texto-peligro" onClick={() => borrar(p)}>Borrar</button>
+                    </div>
+                  </>
+                )}
               </li>
             ))}
           </ul>
         </section>
       )}
 
-      {elegida && <PlaylistDetalle key={elegida} id={elegida} onCambio={recargar} />}
+      {/* renombres en la key: si se renombra la playlist abierta, el detalle se recarga */}
+      {elegida && <PlaylistDetalle key={`${elegida}-${renombres}`} id={elegida} onCambio={recargar} />}
     </div>
   );
 };
