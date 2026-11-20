@@ -1175,6 +1175,30 @@ p.music-card-tipo {
   font-size: 11px;
 }
 
+.detail-descripcion {
+  max-width: 60ch;
+  margin-top: 12px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.detail-categorias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.detail-categorias li {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 10px;
+  font-weight: 500;
+}
+
 .detail-chips {
   display: flex;
   flex-wrap: wrap;
@@ -1708,6 +1732,9 @@ p.music-card-tipo {
 
   .app-shell {
     grid-template-columns: minmax(0, 1fr);
+    /* Sin esto la grilla reparte el alto sobrante y el menú queda gigante */
+    grid-template-rows: auto 1fr;
+    align-content: start;
   }
 
   /* El menú pasa arriba: logo + accesos en una fila que se desplaza sola */
@@ -1750,12 +1777,14 @@ p.music-card-tipo {
     padding: 0;
   }
 
-  .sidebar-perfil-texto {
+  /* El perfil ya está en la barra superior: acá queda solo el botón de salir */
+  .sidebar-perfil {
     display: none;
   }
 
+  /* Iniciar sesión y Registrarse ya están en la barra superior */
   .sidebar-cuenta {
-    padding: 0 18px 12px;
+    display: none;
   }
 
   .topbar-lema {
@@ -1798,6 +1827,54 @@ p.music-card-tipo {
   .crear-coleccion {
     max-width: none;
     width: 100%;
+  }
+
+  /* Menú en celular: los cinco accesos entran sin desplazar (ícono arriba, texto abajo) */
+  .sidebar-nav {
+    gap: 2px;
+    padding: 6px 6px;
+    overflow-x: visible;
+  }
+
+  .sidebar-menu,
+  .sidebar-espacio {
+    display: contents;
+  }
+
+  .sidebar-nav li {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .sidebar-link,
+  .sidebar-sublink {
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    height: 54px;
+    padding: 0 2px;
+    font-size: 10px;
+  }
+
+  .sidebar-link span,
+  .sidebar-sublink span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sidebar-sublink .icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sidebar-usuario {
+    flex: none;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
   }
 }
 

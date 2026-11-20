@@ -4,6 +4,30 @@ SPA en React + Vite para llevar tu propia biblioteca musical y ver tu "Wrapped" 
 Consume el backend propio ([TPFinalDai](#backend)) y la [iTunes Search API](https://performance-partners.apple.com/search-api)
 para explorar el catálogo.
 
+Proyecto final de EFSI y DAI (2026).
+
+## Enlaces del proyecto
+
+| Qué | Dónde |
+| --- | --- |
+| Front desplegado (Vercel) | COMPLETAR |
+| Repositorio del front | [https://github.com/tomigrins/Spotify-Front](https://github.com/tomigrins/Spotify-Front) |
+| Repositorio del backend | [https://github.com/UriSuti/TPFinalDai](https://github.com/UriSuti/TPFinalDai) |
+| Backend desplegado (Render) | [https://tpfinaldai-9fzc.onrender.com](https://tpfinaldai-9fzc.onrender.com) (probar con `/api/health`) |
+| Diseño en Figma | COMPLETAR |
+| Tablero en Trello | COMPLETAR |
+
+> El backend está en el plan gratuito de Render: si pasa un rato sin uso, el primer pedido puede tardar
+> unos 50 segundos.
+
+## Integrantes
+
+| Integrante | Responsabilidades |
+| --- | --- |
+| Tomi (`tomigrins`) | Base del proyecto y consumo de la API externa. Pantalla de detalle, diseño responsive y deploy del front en Vercel. |
+| Uriel Suti | Integración del front con el backend, aplicación del diseño de Figma, actividad y estadísticas de la biblioteca. |
+| Nico Cukier | Base de datos en Neon, despliegue del backend en Render, documentación de la API y tests del backend. |
+
 ## Qué se puede hacer
 
 - **Explorar** canciones, álbumes y artistas del catálogo de iTunes, y ver el detalle de cada uno.
@@ -43,7 +67,7 @@ Para probar el vencimiento de la sesión, levantar el backend con `JWT_ACCESS_TT
 
 | Variable           | Descripción                                   | Por defecto                 |
 | ------------------ | --------------------------------------------- | --------------------------- |
-| `VITE_BACKEND_URL` | URL del backend, **con** el prefijo `/api`.   | `http://localhost:3000/api` |
+| `VITE_BACKEND_URL` | URL del backend, **con** el prefijo `/api`.   | `http://localhost:3000/api` en desarrollo, `/api` en el build de producción |
 
 Vite incrusta las variables `VITE_*` en el bundle al compilar: después de cambiarla hay que reiniciar `npm run dev`
 o volver a hacer el build. No pongas secretos ahí, porque terminan en el navegador.
@@ -59,12 +83,18 @@ o volver a hacer el build. No pongas secretos ahí, porque terminan en el navega
 
 ## Deploy (Vercel)
 
-El proyecto está listo para Vercel:
+El front se publica en Vercel y le habla al backend (Render) **a través del mismo dominio**:
 
-- `vercel.json` redirige todas las rutas a `index.html`, así recargar en `/library` o `/detail/123` no da 404.
-- Configurar `VITE_BACKEND_URL` en las variables de entorno del proyecto en Vercel, apuntando al backend publicado.
-- El backend tiene que incluir el dominio de Vercel en `CORS_ORIGIN`. Como front y backend quedan en dominios
-  distintos, la cookie de sesión tiene que estar configurada para mandarse entre sitios (ver README del backend).
+- `vercel.json` reenvía `/api/*` a `https://tpfinaldai-9fzc.onrender.com/api/*` y el resto de las rutas a
+  `index.html` (así recargar en `/library` o `/detail/123` no da 404).
+- Para el navegador, el backend está en el mismo sitio que el front. La cookie de sesión queda guardada
+  como propia del dominio de Vercel, y los navegadores que bloquean cookies de terceros (Safari, Chrome con
+  esa opción, modo incógnito) no la descartan. Tampoco hace falta CORS.
+- En producción el front usa `/api` por defecto. En Vercel, `VITE_BACKEND_URL` se puede dejar sin definir
+  o con el valor `/api`. **No** hay que poner la URL de Render: eso volvería a las cookies entre dominios.
+- Si cambia la URL del backend, se actualiza el `destination` en `vercel.json`.
+
+Configuración del proyecto en Vercel: framework **Vite**, build `npm run build`, salida `dist`.
 
 ## Rutas
 
@@ -117,7 +147,7 @@ src/
 
 ## Backend
 
-Este front necesita el backend del TP (`TPFinalDai`), que expone la API bajo `/api`: autenticación, biblioteca,
+Este front necesita el backend del TP ([`TPFinalDai`](https://github.com/UriSuti/TPFinalDai)), que expone la API bajo `/api`: autenticación, biblioteca,
 favoritos, reseñas, playlists, actividad, estadísticas, Wrapped e importación de historial (Spotify y Last.fm).
 
 ## Stack
