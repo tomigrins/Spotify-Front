@@ -4,6 +4,30 @@ SPA en React + Vite para llevar tu propia biblioteca musical y ver tu "Wrapped" 
 Consume el backend propio ([TPFinalDai](#backend)) y la [iTunes Search API](https://performance-partners.apple.com/search-api)
 para explorar el catálogo.
 
+Proyecto final de EFSI y DAI (2026).
+
+## Enlaces del proyecto
+
+| Qué | Dónde |
+| --- | --- |
+| Front desplegado (Vercel) | COMPLETAR |
+| Repositorio del front | [https://github.com/tomigrins/Spotify-Front](https://github.com/tomigrins/Spotify-Front) |
+| Repositorio del backend | [https://github.com/UriSuti/TPFinalDai](https://github.com/UriSuti/TPFinalDai) |
+| Backend desplegado (Render) | [https://tpfinaldai-9fzc.onrender.com](https://tpfinaldai-9fzc.onrender.com) (probar con `/api/health`) |
+| Diseño en Figma | COMPLETAR |
+| Tablero en Trello | COMPLETAR |
+
+> El backend está en el plan gratuito de Render: si pasa un rato sin uso, el primer pedido puede tardar
+> unos 50 segundos.
+
+## Integrantes
+
+| Integrante | Responsabilidades |
+| --- | --- |
+| Tomi (`tomigrins`) | Base del proyecto y consumo de la API externa. Pantalla de detalle, diseño responsive y deploy del front en Vercel. |
+| Uriel Suti | Integración del front con el backend, aplicación del diseño de Figma, actividad y estadísticas de la biblioteca. |
+| Nico Cukier | Base de datos en Neon, despliegue del backend en Render, documentación de la API y tests del backend. |
+
 ## Qué se puede hacer
 
 - **Explorar** canciones, álbumes y artistas del catálogo de iTunes, y ver el detalle de cada uno.
@@ -123,7 +147,7 @@ src/
 
 ## Backend
 
-Este front necesita el backend del TP (`TPFinalDai`), que expone la API bajo `/api`: autenticación, biblioteca,
+Este front necesita el backend del TP ([`TPFinalDai`](https://github.com/UriSuti/TPFinalDai)), que expone la API bajo `/api`: autenticación, biblioteca,
 favoritos, reseñas, playlists, actividad, estadísticas, Wrapped e importación de historial (Spotify y Last.fm).
 
 ## Stack
