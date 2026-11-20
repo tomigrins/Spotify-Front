@@ -1175,6 +1175,30 @@ p.music-card-tipo {
   font-size: 11px;
 }
 
+.detail-descripcion {
+  max-width: 60ch;
+  margin-top: 12px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.detail-categorias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.detail-categorias li {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 10px;
+  font-weight: 500;
+}
+
 .detail-chips {
   display: flex;
   flex-wrap: wrap;

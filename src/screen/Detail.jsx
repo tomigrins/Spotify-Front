@@ -8,6 +8,7 @@ import Portada from '../components/music/Portada';
 import TrackList from '../components/music/TrackList';
 import { useFetch } from '../hooks/useFetch';
 import { obtenerDetalle } from '../services/musicApi';
+import { categorias, describir } from '../utils/detalle';
 import { formatearDuracion } from '../utils/formato';
 
 const ETIQUETAS = { cancion: 'Canción', album: 'Álbum', artista: 'Artista' };
@@ -27,7 +28,8 @@ const Detail = () => {
     );
   }
 
-  const datos = [item.genero, item.anio, formatearDuracion(item.duracionSegundos)].filter(Boolean);
+  const etiquetas = categorias(item);
+  const datos = [item.anio, formatearDuracion(item.duracionSegundos)].filter(Boolean);
   if (item.cantidadCanciones) datos.push(`${item.cantidadCanciones} canciones`);
 
   return (
@@ -42,6 +44,12 @@ const Detail = () => {
             <p className="detail-album">
               Álbum: {item.albumId ? <Link to={`/detail/${item.albumId}`}>{item.album}</Link> : item.album}
             </p>
+          )}
+          <p className="detail-descripcion">{describir(item)}</p>
+          {etiquetas.length > 0 && (
+            <ul className="detail-categorias" aria-label="Categorías">
+              {etiquetas.map((c) => <li key={c}>{c}</li>)}
+            </ul>
           )}
           {datos.length > 0 && (
             <ul className="detail-chips" aria-label="Datos">

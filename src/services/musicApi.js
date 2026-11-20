@@ -39,6 +39,7 @@ function normalizar(resultado) {
     imagen: agrandarImagen(resultado.artworkUrl100),
     genero,
     anio: resultado.releaseDate?.slice(0, 4) ?? null,
+    explicito: (resultado.trackExplicitness ?? resultado.collectionExplicitness) === 'explicit',
   };
 
   if (resultado.wrapperType === 'collection') {
